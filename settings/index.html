@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8">
+<!-- Without this, Homey never calls onHomeyReady and the page loads forever. -->
+<script type="text/javascript" src="/homey.js" data-origin="settings"></script>
 <style>
   body { font-family: -apple-system, sans-serif; padding: 12px; }
   label { display:block; margin: 14px 0 4px; font-weight: 600; }
@@ -11,7 +13,7 @@
 </style>
 </head>
 <body>
-  <h3 data-i18n="settings.title">UniFi-gateway</h3>
+  <h3>UniFi-gateway</h3>
   <label>IP-adres</label>
   <input id="host" type="text" placeholder="192.168.1.1">
   <label>Lokale API-sleutel</label>
