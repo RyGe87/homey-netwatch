@@ -22,6 +22,10 @@
   <button id="save">Opslaan en testen</button>
   <div id="result"></div>
 
+  <h3 style="margin-top:26px">Storingsdossier</h3>
+  <div class="hint">Wat de gateway zag op het moment dat het internet wegviel. Handig wanneer je je provider belt.</div>
+  <div id="outages" style="margin-top:10px">Laden…</div>
+
   <script type="text/javascript">
     function onHomeyReady(Homey) {
       const host = document.getElementById('host');
@@ -44,6 +48,22 @@
           });
         });
       });
+
+      function loadOutages() {
+        Homey.api('GET', '/outages', null, (err, list) => {
+          const box = document.getElementById('outages');
+          if (err) { box.textContent = 'Kon het dossier niet laden.'; return; }
+          if (!list || !list.length) { box.textContent = 'Nog geen storingen geregistreerd. Goed nieuws.'; return; }
+          box.innerHTML = list.map(o => {
+            const start = new Date(o.start).toLocaleString('nl-BE');
+            const mins = Math.max(1, Math.round(o.seconds / 60));
+            return '<div style="padding:8px 0;border-bottom:1px solid rgba(127,127,127,.2)">'
+              + '<strong>' + start + '</strong> — ' + mins + ' min<br>'
+              + '<span style="opacity:.75">' + (o.diagnosis || '') + '</span></div>';
+          }).join('');
+        });
+      }
+      loadOutages();
 
       Homey.ready();
     }

@@ -38,10 +38,25 @@ provider and public address appear on the device page.
 Configure it under the app's settings: IP address and API key, with a button
 that tests the connection and shows what it found.
 
-## Roadmap
+## Outage forensics
 
-Outage forensics: when the connection drops, record what the gateway saw at
-that moment, so a pattern of outages becomes evidence rather than a feeling.
+The moment the connection drops, the app asks the gateway what *it* sees and
+keeps the answer — because once the outage is over, the evidence is gone. It
+separates the cases that matter:
+
+- the gateway itself is unreachable → something inside the house, or the
+  router restarted;
+- the WAN link is down → cable, modem, or the line from your provider;
+- the line is up but nothing gets through → almost certainly a provider
+  outage;
+- the gateway sees nothing wrong → DNS, or a partial failure further away.
+
+Every finished outage is logged with its start, duration and that verdict.
+The list is shown under the app's settings, and the internet device carries a
+sensor with the number of outages in the last seven days, so a bad week is
+visible as a number rather than a feeling. Both flow triggers pass the verdict
+along as a token, so a notification can say what happened, not just that
+something happened.
 
 ## License
 

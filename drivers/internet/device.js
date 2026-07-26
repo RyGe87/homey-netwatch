@@ -21,6 +21,12 @@ class InternetDevice extends Homey.Device {
     this._failures = 0;
     this._down = false;
     this._downSince = null;
+    this._diagnosis = null;
+
+    if (!this.hasCapability('measure_outages_7d')) {
+      await this.addCapability('measure_outages_7d').catch(this.error);
+    }
+    this._updateOutageCount();
 
     this._tick = this._tick.bind(this);
     this._timer = this.homey.setInterval(this._tick, CHECK_INTERVAL_MS);
@@ -71,23 +77,50 @@ class InternetDevice extends Homey.Device {
   async _markDown() {
     this._down = true;
     this._downSince = Date.now();
-    this.log('Internet is unreachable');
     await this.setCapabilityValue('alarm_internet', true).catch(this.error);
     await this.setCapabilityValue('measure_latency', 0).catch(this.error);
-    this.homey.flow.getDeviceTriggerCard('internet_lost').trigger(this).catch(this.error);
+
+    // Ask the gateway what it sees while the outage is happening — afterwards
+    // the evidence is gone.
+    const { diagnosis, isp } = await this.homey.app.diagnose();
+    this._diagnosis = diagnosis;
+    this.log(`Internet unreachable — ${diagnosis}`);
+
+    this.homey.flow.getDeviceTriggerCard('internet_lost')
+      .trigger(this, { diagnosis, isp: isp || '' })
+      .catch(this.error);
   }
 
   async _markRestored() {
-    const seconds = Math.round((Date.now() - this._downSince) / 1000);
+    const startedAt = this._downSince;
+    const seconds = Math.round((Date.now() - startedAt) / 1000);
+    const diagnosis = this._diagnosis || '';
     this._down = false;
     this._downSince = null;
+    this._diagnosis = null;
+
     this.log(`Internet is back after ${seconds}s`);
     await this.setCapabilityValue('alarm_internet', false).catch(this.error);
+
+    this.homey.app.recordOutage({
+      start: new Date(startedAt).toISOString(),
+      end: new Date().toISOString(),
+      seconds,
+      diagnosis,
+    });
+    this._updateOutageCount();
+
     this.homey.flow.getDeviceTriggerCard('internet_restored')
       .trigger(this, {
         minutes: Math.round(seconds / 60),
         human: this.constructor.humanDuration(seconds),
+        diagnosis,
       })
+      .catch(this.error);
+  }
+
+  _updateOutageCount() {
+    this.setCapabilityValue('measure_outages_7d', this.homey.app.countOutagesSince(7))
       .catch(this.error);
   }
 
