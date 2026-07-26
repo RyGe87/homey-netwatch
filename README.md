@@ -23,11 +23,25 @@ is the thing that broke, asking it whether the internet works is circular.
   text such as "1 uur en 12 minuten".
 - A condition card to check whether the internet is available.
 
+## UniFi gateway
+
+A second device reads your UniFi console directly over the LAN, using a
+**locally created** API key. That local part matters: a key from the cloud
+portal talks to Ubiquiti's servers, which are unreachable during exactly the
+outage you want explained.
+
+It reports WAN status, latency, the last speed test (download, upload, ping)
+and how many devices are connected, and it fires flows when the WAN drops or
+returns, when your public IP changes, and when a new speed test lands. Your
+provider and public address appear on the device page.
+
+Configure it under the app's settings: IP address and API key, with a button
+that tests the connection and shows what it found.
+
 ## Roadmap
 
-UniFi enrichment: when the connection drops, ask the gateway *why* — WAN port
-down, ISP outage, or something local — and record it, so a pattern of outages
-becomes evidence rather than a feeling.
+Outage forensics: when the connection drops, record what the gateway saw at
+that moment, so a pattern of outages becomes evidence rather than a feeling.
 
 ## License
 

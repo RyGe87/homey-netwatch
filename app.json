@@ -1,9 +1,11 @@
 {
   "id": "dev.rymenants.netwatch",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "compatibility": ">=5.0.0",
   "sdk": 3,
-  "platforms": ["local"],
+  "platforms": [
+    "local"
+  ],
   "name": {
     "en": "Network Watch",
     "nl": "Netwerkwacht"
@@ -12,7 +14,9 @@
     "en": "Watches your internet connection and reports outages, with how long they lasted",
     "nl": "Bewaakt je internetverbinding en meldt storingen, inclusief hoe lang ze duurden"
   },
-  "category": ["tools"],
+  "category": [
+    "tools"
+  ],
   "brandColor": "#1f6f8b",
   "images": {
     "small": "/assets/images/small.png",
@@ -43,6 +47,59 @@
       },
       "units": {
         "en": "ms"
+      },
+      "decimals": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true
+    },
+    "alarm_wan": {
+      "type": "boolean",
+      "title": {
+        "en": "WAN down",
+        "nl": "WAN weg"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true
+    },
+    "measure_speed_down": {
+      "type": "number",
+      "title": {
+        "en": "Download speed",
+        "nl": "Downloadsnelheid"
+      },
+      "units": {
+        "en": "Mbps"
+      },
+      "decimals": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true
+    },
+    "measure_speed_up": {
+      "type": "number",
+      "title": {
+        "en": "Upload speed",
+        "nl": "Uploadsnelheid"
+      },
+      "units": {
+        "en": "Mbps"
+      },
+      "decimals": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true
+    },
+    "measure_clients": {
+      "type": "number",
+      "title": {
+        "en": "Connected devices",
+        "nl": "Aangesloten apparaten"
       },
       "decimals": 0,
       "getable": true,
@@ -98,6 +155,106 @@
             "filter": "driver_id=internet"
           }
         ]
+      },
+      {
+        "id": "wan_down",
+        "title": {
+          "en": "The gateway lost its WAN connection",
+          "nl": "De gateway verloor de WAN-verbinding"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=gateway"
+          }
+        ]
+      },
+      {
+        "id": "wan_up",
+        "title": {
+          "en": "The gateway regained its WAN connection",
+          "nl": "De gateway heeft de WAN-verbinding terug"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=gateway"
+          }
+        ]
+      },
+      {
+        "id": "public_ip_changed",
+        "title": {
+          "en": "The public IP address changed",
+          "nl": "Het publieke IP-adres is veranderd"
+        },
+        "tokens": [
+          {
+            "name": "ip",
+            "type": "string",
+            "title": {
+              "en": "New IP",
+              "nl": "Nieuw IP"
+            }
+          },
+          {
+            "name": "previous",
+            "type": "string",
+            "title": {
+              "en": "Previous IP",
+              "nl": "Vorig IP"
+            }
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=gateway"
+          }
+        ]
+      },
+      {
+        "id": "speedtest_updated",
+        "title": {
+          "en": "A new speed test result arrived",
+          "nl": "Er is een nieuw snelheidstestresultaat"
+        },
+        "tokens": [
+          {
+            "name": "down",
+            "type": "number",
+            "title": {
+              "en": "Download (Mbps)",
+              "nl": "Download (Mbps)"
+            }
+          },
+          {
+            "name": "up",
+            "type": "number",
+            "title": {
+              "en": "Upload (Mbps)",
+              "nl": "Upload (Mbps)"
+            }
+          },
+          {
+            "name": "ping",
+            "type": "number",
+            "title": {
+              "en": "Ping (ms)",
+              "nl": "Ping (ms)"
+            }
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=gateway"
+          }
+        ]
       }
     ],
     "conditions": [
@@ -125,9 +282,16 @@
         "nl": "Internetverbinding"
       },
       "class": "sensor",
-      "capabilities": ["alarm_internet", "measure_latency"],
-      "platforms": ["local"],
-      "connectivity": ["lan"],
+      "capabilities": [
+        "alarm_internet",
+        "measure_latency"
+      ],
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
       "images": {
         "small": "/drivers/internet/assets/images/small.png",
         "large": "/drivers/internet/assets/images/large.png"
@@ -143,6 +307,64 @@
         {
           "id": "add_devices",
           "template": "add_devices"
+        }
+      ]
+    },
+    {
+      "id": "gateway",
+      "name": {
+        "en": "UniFi gateway",
+        "nl": "UniFi-gateway"
+      },
+      "class": "sensor",
+      "capabilities": [
+        "alarm_wan",
+        "measure_latency",
+        "measure_speed_down",
+        "measure_speed_up",
+        "measure_clients"
+      ],
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "images": {
+        "small": "/drivers/gateway/assets/images/small.png",
+        "large": "/drivers/gateway/assets/images/large.png"
+      },
+      "pair": [
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "settings": [
+        {
+          "id": "isp",
+          "type": "label",
+          "value": "-",
+          "label": {
+            "en": "Internet provider",
+            "nl": "Internetprovider"
+          }
+        },
+        {
+          "id": "public_ip",
+          "type": "label",
+          "value": "-",
+          "label": {
+            "en": "Public IP address",
+            "nl": "Publiek IP-adres"
+          }
         }
       ]
     }
