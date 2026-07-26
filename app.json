@@ -1,6 +1,6 @@
 {
   "id": "dev.rymenants.netwatch",
-  "version": "0.3.0",
+  "version": "0.5.0",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "platforms": [
@@ -114,6 +114,17 @@
         "nl": "Storingen (7 dagen)"
       },
       "decimals": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true
+    },
+    "is_home": {
+      "type": "boolean",
+      "title": {
+        "en": "Home",
+        "nl": "Thuis"
+      },
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
@@ -293,6 +304,34 @@
             "filter": "driver_id=gateway"
           }
         ]
+      },
+      {
+        "id": "came_home",
+        "title": {
+          "en": "Arrived home",
+          "nl": "Is thuisgekomen"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=presence"
+          }
+        ]
+      },
+      {
+        "id": "left_home",
+        "title": {
+          "en": "Left home",
+          "nl": "Is vertrokken"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=presence"
+          }
+        ]
       }
     ],
     "conditions": [
@@ -307,6 +346,20 @@
             "type": "device",
             "name": "device",
             "filter": "driver_id=internet"
+          }
+        ]
+      },
+      {
+        "id": "is_home",
+        "title": {
+          "en": "!{{Is|Is not}} home",
+          "nl": "!{{Is|Is niet}} thuis"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=presence"
           }
         ]
       }
@@ -404,6 +457,57 @@
             "en": "Public IP address",
             "nl": "Publiek IP-adres"
           }
+        }
+      ]
+    },
+    {
+      "id": "presence",
+      "name": {
+        "en": "Network presence",
+        "nl": "Netwerkaanwezigheid"
+      },
+      "class": "sensor",
+      "capabilities": [
+        "is_home"
+      ],
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "images": {
+        "small": "/drivers/presence/assets/images/small.png",
+        "large": "/drivers/presence/assets/images/large.png"
+      },
+      "settings": [
+        {
+          "id": "away_minutes",
+          "type": "number",
+          "value": 10,
+          "min": 1,
+          "max": 120,
+          "label": {
+            "en": "Away after (minutes)",
+            "nl": "Weg na (minuten)"
+          },
+          "hint": {
+            "en": "How long the device must be gone before it counts as away. Phones drop off wifi briefly all the time; a few minutes of patience prevents flapping.",
+            "nl": "Hoe lang het apparaat weg moet zijn voor het als vertrokken telt. Telefoons vallen voortdurend even van wifi; wat geduld voorkomt geflikker."
+          }
+        }
+      ],
+      "pair": [
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
         }
       ]
     }

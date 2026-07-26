@@ -86,6 +86,7 @@ class InternetDevice extends Homey.Device {
     this._diagnosis = diagnosis;
     this.log(`Internet unreachable — ${diagnosis}`);
 
+    this.homey.app.notify(`Internet weggevallen — ${diagnosis}`);
     this.homey.flow.getDeviceTriggerCard('internet_lost')
       .trigger(this, { diagnosis, isp: isp || '' })
       .catch(this.error);
@@ -110,12 +111,12 @@ class InternetDevice extends Homey.Device {
     });
     this._updateOutageCount();
 
+    const human = this.constructor.humanDuration(seconds);
+    this.homey.app.notify(
+      `Internet is terug na ${human}${diagnosis ? ` — ${diagnosis}` : ''}`,
+    );
     this.homey.flow.getDeviceTriggerCard('internet_restored')
-      .trigger(this, {
-        minutes: Math.round(seconds / 60),
-        human: this.constructor.humanDuration(seconds),
-        diagnosis,
-      })
+      .trigger(this, { minutes: Math.round(seconds / 60), human, diagnosis })
       .catch(this.error);
   }
 

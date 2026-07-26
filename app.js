@@ -12,6 +12,9 @@ class NetworkWatchApp extends Homey.App {
     this.homey.flow.getConditionCard('internet_available')
       .registerRunListener(async ({ device }) => !device.isDown);
 
+    this.homey.flow.getConditionCard('is_home')
+      .registerRunListener(async ({ device }) => device.isHome);
+
     this.log('Network Watch app started');
   }
 
@@ -21,6 +24,19 @@ class NetworkWatchApp extends Homey.App {
     const apiKey = this.homey.settings.get('apikey');
     if (!host || !apiKey) return null;
     return new UnifiClient({ host, apiKey });
+  }
+
+  /** One shared, briefly cached client list: ten presence devices should not
+   *  mean ten API calls a minute. */
+  async getClients() {
+    const now = Date.now();
+    if (this._clients && now - this._clientsAt < 20000) return this._clients;
+
+    const unifi = this.getUnifi();
+    if (!unifi) throw new Error('Geen gateway ingesteld');
+    this._clients = await unifi.clients();
+    this._clientsAt = now;
+    return this._clients;
   }
 
   async testConnection() {
@@ -75,6 +91,18 @@ class NetworkWatchApp extends Homey.App {
       isp,
       summary,
     };
+  }
+
+  /** Write a line to Homey's timeline. Stored locally, so it survives an
+   *  outage — unlike a push notification, which needs the very internet
+   *  connection that just disappeared. */
+  async notify(text) {
+    if (this.homey.settings.get('notifications') === false) return;
+    try {
+      await this.homey.notifications.createNotification({ excerpt: text });
+    } catch (err) {
+      this.error(`Kon geen notificatie maken: ${err.message}`);
+    }
   }
 
   getOutages() {
