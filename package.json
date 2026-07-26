@@ -1,0 +1,7 @@
+{
+  "name": "dev.rymenants.netwatch",
+  "version": "0.1.0",
+  "main": "app.js",
+  "license": "MIT",
+  "description": "Homey app that watches the internet connection and reports outages"
+}

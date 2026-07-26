@@ -1,0 +1,150 @@
+{
+  "id": "dev.rymenants.netwatch",
+  "version": "0.1.0",
+  "compatibility": ">=5.0.0",
+  "sdk": 3,
+  "platforms": ["local"],
+  "name": {
+    "en": "Network Watch",
+    "nl": "Netwerkwacht"
+  },
+  "description": {
+    "en": "Watches your internet connection and reports outages, with how long they lasted",
+    "nl": "Bewaakt je internetverbinding en meldt storingen, inclusief hoe lang ze duurden"
+  },
+  "category": ["tools"],
+  "brandColor": "#1f6f8b",
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Geert Rymenants",
+    "email": "geert@rymenants.dev"
+  },
+  "capabilities": {
+    "alarm_internet": {
+      "type": "boolean",
+      "title": {
+        "en": "Internet down",
+        "nl": "Internet weg"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true
+    },
+    "measure_latency": {
+      "type": "number",
+      "title": {
+        "en": "Latency",
+        "nl": "Reactietijd"
+      },
+      "units": {
+        "en": "ms"
+      },
+      "decimals": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true
+    }
+  },
+  "flow": {
+    "triggers": [
+      {
+        "id": "internet_lost",
+        "title": {
+          "en": "The internet connection dropped",
+          "nl": "De internetverbinding is weggevallen"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=internet"
+          }
+        ]
+      },
+      {
+        "id": "internet_restored",
+        "title": {
+          "en": "The internet connection came back",
+          "nl": "De internetverbinding is terug"
+        },
+        "tokens": [
+          {
+            "name": "minutes",
+            "type": "number",
+            "title": {
+              "en": "Minutes down",
+              "nl": "Minuten weg"
+            }
+          },
+          {
+            "name": "human",
+            "type": "string",
+            "title": {
+              "en": "Duration",
+              "nl": "Duur"
+            }
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=internet"
+          }
+        ]
+      }
+    ],
+    "conditions": [
+      {
+        "id": "internet_available",
+        "title": {
+          "en": "The internet !{{is|is not}} available",
+          "nl": "Het internet !{{is|is niet}} beschikbaar"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=internet"
+          }
+        ]
+      }
+    ]
+  },
+  "drivers": [
+    {
+      "id": "internet",
+      "name": {
+        "en": "Internet connection",
+        "nl": "Internetverbinding"
+      },
+      "class": "sensor",
+      "capabilities": ["alarm_internet", "measure_latency"],
+      "platforms": ["local"],
+      "connectivity": ["lan"],
+      "images": {
+        "small": "/drivers/internet/assets/images/small.png",
+        "large": "/drivers/internet/assets/images/large.png"
+      },
+      "pair": [
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ]
+    }
+  ]
+}
