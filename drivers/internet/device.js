@@ -112,9 +112,9 @@ class InternetDevice extends Homey.Device {
     this._updateOutageCount();
 
     const human = this.constructor.humanDuration(seconds);
-    this.homey.app.notify(
-      `Internet is terug na ${human}${diagnosis ? ` — ${diagnosis}` : ''}`,
-    );
+    const verhaal = `Internet is terug na ${human}${diagnosis ? ` — ${diagnosis}` : ''}`;
+    this.homey.app.notify(verhaal);
+    this.homey.app.push(verhaal).catch(this.error);
     this.homey.flow.getDeviceTriggerCard('internet_restored')
       .trigger(this, { minutes: Math.round(seconds / 60), human, diagnosis })
       .catch(this.error);

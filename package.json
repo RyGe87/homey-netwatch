@@ -3,5 +3,8 @@
   "version": "0.1.0",
   "main": "app.js",
   "license": "MIT",
-  "description": "Homey app that watches the internet connection and reports outages"
+  "description": "Homey app that watches the internet connection and reports outages",
+  "dependencies": {
+    "homey-api": "^3.0.0"
+  }
 }

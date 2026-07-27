@@ -2,6 +2,7 @@
 
 const Homey = require('homey');
 const UnifiClient = require('./lib/UnifiClient');
+const { HomeyAPI } = require('homey-api');
 
 // Keep enough history to spot a pattern, not enough to bloat the settings.
 const MAX_OUTAGES = 100;
@@ -14,6 +15,11 @@ class NetworkWatchApp extends Homey.App {
 
     this.homey.flow.getConditionCard('is_home')
       .registerRunListener(async ({ device }) => device.isHome);
+
+    this._api = await HomeyAPI.createAppAPI({ homey: this.homey }).catch(err => {
+      this.error(`Kon de Homey-API niet openen: ${err.message}`);
+      return null;
+    });
 
     this.log('Network Watch app started');
   }
@@ -103,6 +109,28 @@ class NetworkWatchApp extends Homey.App {
     } catch (err) {
       this.error(`Kon geen notificatie maken: ${err.message}`);
     }
+  }
+
+  /** Push to every household member. The mobile card needs the COMPLETE user
+   *  object: give it only an id and it reports success while delivering
+   *  nothing. A push cannot arrive during the outage itself — it travels via
+   *  Athom's cloud — so this is used for the "back online" message, which is
+   *  the one carrying the whole story anyway. */
+  async push(text) {
+    if (!this._api) throw new Error('Homey-API niet beschikbaar');
+    const users = await this._api.users.getUsers();
+    let verstuurd = 0;
+    for (const user of Object.values(users)) {
+      if (!user.enabled) continue;
+      await this._api.flow.runFlowCardAction({
+        uri: 'homey:manager:mobile',
+        id: 'homey:manager:mobile:push_text',
+        args: { user, text },
+      });
+      verstuurd += 1;
+    }
+    this.log(`Pushbericht naar ${verstuurd} gebruiker(s): ${text}`);
+    return { verstuurd };
   }
 
   getOutages() {
