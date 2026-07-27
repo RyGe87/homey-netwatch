@@ -20,7 +20,6 @@
   <input id="apikey" type="password" placeholder="aangemaakt op de console zelf">
   <div class="hint">Maak de sleutel aan in de webinterface van de router zelf, niet via het cloudportaal. Een cloudsleutel werkt hier niet — en juist tijdens een storing is de cloud onbereikbaar.</div>
   <button id="save">Opslaan en testen</button>
-  <button id="pushtest" style="margin-left:8px">Stuur een testmelding</button>
   <div id="result"></div>
 
   <h3 style="margin-top:26px">Storingsdossier</h3>
@@ -47,16 +46,6 @@
               + '\nPubliek IP: ' + (data.publicIp || 'onbekend')
               + '\nApparaten: ' + (data.clients ?? '?');
           });
-        });
-      });
-
-      document.getElementById('pushtest').addEventListener('click', () => {
-        result.textContent = 'Testmelding versturen…';
-        Homey.api('GET', '/testpush', null, (err, data) => {
-          result.textContent = err
-            ? 'Mislukt: ' + (err.message || err)
-            : 'Verstuurd naar ' + (data && data.verstuurd !== undefined ? data.verstuurd : '?')
-              + ' gebruiker(s). Kijk op je telefoon.';
         });
       });
 

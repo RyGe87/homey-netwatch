@@ -1,6 +1,6 @@
 {
   "id": "dev.rymenants.netwatch",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "platforms": [
@@ -520,13 +520,6 @@
     "outages": {
       "method": "GET",
       "path": "/outages"
-    },
-    "testpush": {
-      "method": "GET",
-      "path": "/testpush"
     }
-  },
-  "permissions": [
-    "homey:manager:api"
-  ]
+  }
 }
